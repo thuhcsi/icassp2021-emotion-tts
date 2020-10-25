@@ -1,0 +1,88 @@
+from tqdm import tqdm
+from functools import partial
+from concurrent.futures import ProcessPoolExecutor
+
+
+def data_process_pipeline(hp, meta_file, meta_fun, feature_fun, postprocess_fun,
+                          max_workers=None, **kwargs):
+    """This func reads meta file and runs three custom funcs to get the final data
+
+    This func performs the following data preprocessing pipeline:
+        01 read the meta file and run the meta_fun func to parse each line in meta file, the meta_fun
+            must return a tuple of two elements: data sample(e.g., a wav or image) and labels dict
+        02 parse the geted data sample to the feature_fun func to get a feature data
+        03 the list of feature samples is passed to the postprocess_fun to do some post preproceesing
+            e.g., normalizations, fixed length padding
+
+    # Arguments
+        hp: the hyper parameter object with type 'Hparams' or a other type object where all hyper parameters
+            can be accessed as it's attributes
+        meta_file: the meta file where each line generally contains the path of data sample and its labels
+        meta_fun: this func takes a line in meta_file and the hp object as inputs and returns a pair of
+            tuple of data samples(often a list arrays) and its labels dict(a list of dicts). The signature
+            of meta_fun is: def fun_name(hp, line), and its return values are:([data samples], [labels dicts])
+            or (None, None) if no sample returned. Note, even there is only one sample returned, it also must
+            be a list of length 1. A labels dict example is {'L1': label_1, 'L2': label_2}.
+            Note: this can return (None, None) for the reason of some samples may be filtered out, e.g.,  its
+                length does not meet the requirements
+        feature_fun: this func takes a single data sample returned by meta_fun and the hp object as inputs,
+            and returns a single feature sample. The signature is: def feature_fun(hp, sample)
+        postprocess_fun: this func takes the list of all feature samples and hp as inputs and return a same
+            list of postprocessed feature samples with the same length. Generally, the feature normalizations,
+            fixed length padding and sorting the samples by length  are performed in this func. The signature
+            is: def postprocess_fun(hp, features)
+        kwargs: some extra key word arguments will be passed to all three funcs.
+
+    # Returns
+        A tuple of length 2, the first element is the list of all postprocessed features, and the second element
+            is the list of all labels(each label is a list converted by the labels dict). For example, the return
+            value can be: ([sample1, .., samplen], [[label1_1, label2_2], [label2_1, label_22], .., [labeln_1, labeln_2]])
+
+    # Exceptions
+        TypeError: if both value of meta_fun's return is not a list
+    """
+    with open(meta_file) as fr:
+        lines = fr.readlines()
+
+    # 处理meta line, 获取sample和标签
+    print('\n[Beginning process datas ... ]')
+    print('step 1: parsing meta and loading orignal data samples ...')
+    datas, labels = [], []
+    if max_workers == -1:
+        for line in tqdm(lines):
+            ds, ls, info = meta_fun(hp, line, **kwargs)
+            if (ds, ls) != (None, None):
+                if type(ds) != list or type(ls) != list:
+                    raise TypeError('meta_fun func must return a tuple of "list", not {} or {}'.format(type(ds), type(ls)))
+                datas += ds
+                labels += ls
+    else:
+        num = len(lines)
+        hps = [hp] * num
+        with ProcessPoolExecutor(max_workers) as p:
+            for r in tqdm(p.map(partial(meta_fun, **kwargs), hps, lines), total=num):
+                ds, ls, info = r
+                if (ds, ls) != (None, None):
+                    if type(ds) != list or type(ls) != list:
+                        raise TypeError('meta_fun func must return a tuple of "list", not {} or {}'.format(type(ds), type(ls)))
+                    datas += ds
+                    labels += ls
+    hp.sr = info['sr']
+
+    # 处理sample, 获取feature
+    print('step 2: getting features from original data samples ...')
+    if max_workers == -1:
+        datas = [feature_fun(hp, x, **kwargs) for x in tqdm(datas)]
+    else:
+        num = len(datas)
+        hps = [hp] * num
+        with ProcessPoolExecutor(max_workers) as p:
+            datas = [r for r in tqdm(p.map(partial(feature_fun, **kwargs), hps, datas), total=num)]
+
+    # 后处理
+    print('step 3: postprocessing for features ...')
+    datas = postprocess_fun(hp, datas, **kwargs)
+
+    for i in range(len(labels)):
+        labels[i] = list(labels[i].values())  # 用list更好, tuple无法修改
+    return datas, labels
