@@ -42,7 +42,7 @@ hp = HParams(
     reference_rnn_units=128,
 
     # gst parameters
-    #gst_heads=4,
+    # gst_heads=4,
     gst_heads=8,
     # gst_tokens=10,
     gst_tokens=16,

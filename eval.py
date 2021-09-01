@@ -72,9 +72,9 @@ def process_texts(args, texts, cleaners=['english_cleaners']):
         A list of batch padded text seqs, each batch is a int32 np.array
     '''
     def text_to_name(text):
-        text = re.sub(r'\W+', '_', text.strip())  # 所有非单词字符替换成1个'-'
-        text = re.sub(r'_+', '_', text)           # 多个'-'替换成1个'-'
-        text = re.sub(r'_$', '', text)            # 去掉结尾'-'
+        text = re.sub(r'\W+', '_', text.strip()) 
+        text = re.sub(r'_+', '_', text)
+        text = re.sub(r'_$', '', text)
         name = f'eval-{args.eval_step}' + '-emo-{}_' + text
         return os.path.join(args.output_dir, name)
 
