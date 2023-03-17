@@ -1,0 +1,15 @@
+recola:
+
+    arousal positive 788   p:n  788 : 520, 1.5 : 1
+    valance positive 1063   p:n 1063 :
+    example count 1308
+
+    valid_size: 100 sample
+
+iemocap:
+
+    arousal positive 6918
+    valance positive 4683
+    example count 10039
+
+    valid_size: 500 sample

@@ -1,0 +1,42 @@
+default: &default
+  train_tfr: /home/ddy17/ser_data/cx_data/iemocap/tfrs/train.tfr
+  valid_tfr: /home/ddy17/ser_data/cx_data/iemocap/tfrs/valid.tfr
+
+  model_type: 'cr' # 'cr', 'gst', 'r_gst2'
+  label_type: 'valance' # 'valance', 'arousal'
+  ckpt_base_dir: /home/ddy17/experiments/gst_ser/iemocap2recola
+  saver_max_to_keep: 30
+
+
+  eval_tfr: /home/ddy17/ser_data/cx_data/recola/tfrs/all.tfr
+  restore_ckpt: /home/ddy17/experiments/gst_ser/gst_related/iemocap2recola/arousal_best_param_ckpt_2/model_01291820-360
+  result_file: './result.txt'
+  feat_npy_fold: './npys'
+  feat_npy_name: 'recola.npy'
+
+  warm_up_steps: 100
+  warm_up_lr: 0.00003
+  lr: 0.0003
+  batch_size: 32
+
+  train_steps: 5000
+  train_print_interval: 10
+  eval_interval: 30
+  ckpt_interval: 500
+
+
+  feat_dim: 128
+  out_dim: 2
+  style_embed_depth: 256
+  num_heads: 4
+  num_gst: 20
+  style_att_dim: 128
+  style_att_type: "dot_attention"  # dot_attention, mlp_attention
+
+  is_var_cnn_mask: True
+  is_bn: False
+
+  id_prefix: ''
+  cfg_out_dir: cfg_out
+  gpu: '3'
+

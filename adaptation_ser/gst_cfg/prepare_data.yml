@@ -1,0 +1,10 @@
+default: &default
+  valid_size: 500
+  npy_dir: /home/ddy17/ser_data/cx_data/iemocap/npys
+  npy_meta_path: /home/ddy17/ser_data/cx_data/iemocap/npy_meta
+  tfr_dir: /home/ddy17/ser_data/cx_data/iemocap/tfrs
+  id_prefix: aaa
+  data: no
+  cfg_out_dir: cfg_out
+  out_dim: 2
+  gpu: '4'

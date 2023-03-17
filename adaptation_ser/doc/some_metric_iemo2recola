@@ -1,0 +1,51 @@
+iemo2reco
+
+arousal
+
+p\g      neg     pos
+neg      246     327
+pos      274     461
+ua 0.529 , wa 0.541
+
+valance
+
+p\g      neg     pos
+neg      40      229
+pos      205     834
+ua 0.474 , wa 0.668
+
+
+####
+GST
+arousal
+
+python gst_eval.py --config_file=./gst_cfg/iemocap2recola.yml --gpu='4' --model_type='gst' --label_type='arousal' --restore_ckpt=/home/ddy17/experiments/gst_ser/gst_related/iemocap2recola/gst_arousal_01301020_best_params_ckpt/model-2640
+
+p\g      neg     pos
+neg      300     381
+pos      220     407
+ua 0.547 , wa 0.541
+
+valance
+python gst_eval.py --config_file=./gst_cfg/iemocap2recola.yml --gpu='3' --model_type='gst' --label_type='valance' --restore_ckpt=/home/ddy17/experiments/gst_ser/gst_related/iemocap2recola/gst_valance_01301020_best_params_ckpt/model-1560
+
+p\g      neg     pos
+neg      75      352
+pos      170     711
+ua 0.487 , wa 0.601
+
+
+###
+GST2
+
+valance
+
+python gst_eval.py --config_file=./gst_cfg/iemocap2recola.yml --gpu='5' --model_type='gst2' --label_type='valance' --restore_ckpt=/home/ddy17/experiments/gst_ser/iemocap2recola/gst2_valance_01301530_best_params_ckpt/model-1170
+p\g      neg     pos
+neg      57      223
+pos      188     840
+ua 0.511 , wa 0.686
+
+
+
+使用GST2模型，能有轻微提升

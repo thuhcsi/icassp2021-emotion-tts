@@ -1,0 +1,34 @@
+default: &default
+  train_tfr_dir: /home/ddy17/ser_data/ser2tts/iemo/tfr_valance/train
+  valid_tfr_dir: /home/ddy17/ser_data/ser2tts/iemo/tfr_valance/valid
+  model_type: 'mmd2'  # 'mmd',
+
+  ckpt_base_dir: /home/ddy17/experiments/gst_ser/ser2tts_valance
+  saver_max_to_keep: 30
+
+  target_tfr_dir: /home/ddy17/ser_data/ser2tts/bc2013/tfrs_v2
+  restore_ckpt: /home/ddy17/experiments/gst_ser/gst_related/iemocap2recola/arousal_best_param_ckpt_2/model_01291820-360
+  result_file: './bc_arousal.txt'
+
+  alpha: 0.5
+  warm_up_steps: 100
+  warm_up_lr: 0.00003
+  lr: 0.0003
+  batch_size: 96
+  k_prob: 0.5
+
+  feat_dim: 128
+  out_dim: 2
+
+  train_steps: 15000
+  train_print_interval: 10
+  eval_interval: 30
+  ckpt_interval: 500
+
+  is_var_cnn_mask: True
+  is_bn: False
+
+  id_prefix: ''
+  cfg_out_dir: cfg_out
+  gpu: '3'
+
